@@ -1,0 +1,23 @@
+{% extends 'users/base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Settings' %}{% endblock %}
+
+{% block body_block %}
+    <form id="user_form" class="form-register" method="post" action="{% url 'users:edit-profile' %}">
+        <div class="ui teal segment">
+            <h3 class="ui header">{% trans 'Settings' %}</h3>
+            {% csrf_token %}
+            <p><span style="font-style: italic;font-weight: bold">{% trans 'Username' %}:</span> {{ form.instance.username }}</p>
+            <div class="ui form">
+                {% for field in form %}
+                    {% include 'DiplomaQ/field.html' with field=field %}
+                {% endfor %}
+            </div>
+            <div class="ui divider"></div>
+            <input type="submit" class="ui teal button" style="float: right;" name="submit" value="{% trans 'Save' %}">
+            <br><br>
+        </div>
+    </form>
+{% endblock %}

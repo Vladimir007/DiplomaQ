@@ -1,0 +1,11 @@
+.form-signin {
+    max-width: 350px;
+    padding: 15px;
+    margin: 25vh auto;
+}
+
+.form-register {
+    max-width: 50vw;
+    padding: 15px;
+    margin: 5vh auto;
+}

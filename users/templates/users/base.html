@@ -1,0 +1,10 @@
+{% extends 'DiplomaQ/base.html' %}
+
+{% load staticfiles %}
+{% load compress %}
+
+{% block head_block %}
+    {% compress css file login %}
+        <link href="{% static 'users/css/login.css' %}" rel="stylesheet">
+    {% endcompress %}
+{% endblock %}

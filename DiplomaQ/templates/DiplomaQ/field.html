@@ -1,0 +1,8 @@
+<div class="field">
+    <label for="{{ field.id_for_label }}">
+        <span>{{ field.label }}</span>
+        {% if field.help_text %}<i class="ui help blue icon note-popup" data-html="{{ field.help_text }}"></i>{% endif %}
+    </label>
+    {{ field }}
+    <small>{{ field.errors }}</small>
+</div>

@@ -1,0 +1,119 @@
+{% load i18n %}
+
+{% if not user_link %}
+    <h5>{% trans "You don't have a curator yet" %}!</h5>
+{% else %}
+    <h5>{% trans 'Your curator is' %}: {{ user_link.curator.get_full_name }}</h5>
+    <button id="upload_file_modal_activate" class="ui teal mini button">{% trans 'Upload new file' %}</button>
+
+    {% if files|length %}
+        <table class="ui compact selectable fixed teal table">
+            <thead>
+                <tr>
+                    <th class="three wide">{% trans 'File' %}</th>
+                    <th class="three wide">{% trans 'Date' %}</th>
+                    <th class="nine wide">{% trans 'Comment' %}</th>
+                    <th class="one wide">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for diploma in files %}
+                    <tr>
+                        <td><a href="{% url 'core:download' diploma.pk %}">{{ diploma.name }}</a></td>
+                        <td class="nowrap">{{ diploma.date }}</td>
+                        <td><span>{% if diploma.comment %}{{ diploma.comment }}{% else %}-{% endif %}</span></td>
+                        <td class="right aligned"><i class="ui red remove link icon remove-file-link" data-url="{% url 'core:api-remove-file' diploma.pk %}"></i></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h5>{% trans 'You have not uploaded any files yet' %}!</h5>
+    {% endif %}
+
+    <div id="upload_file_modal" class="ui modal">
+        <div class="header">{% trans 'Upload file' %}</div>
+        <div class="content">
+            <div class="ui grid">
+                <div class="six wide column right aligned">
+                    <span class="ui violet button btn-file">{% trans 'Browse' %}<input id="file_input" type="file"></span>
+                </div>
+                <div class="ten wide column">
+                    <span id="filename_display"></span>
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="ui green button modal-confirm" data-url="{% url 'core:api-upload-file' %}">{% trans 'Upload' %}</button>
+            <button class="ui blue button modal-cancel">{% trans 'Cancel' %}</button>
+        </div>
+    </div>
+
+    <div id="remove_warn_modal" class="ui basic modal">
+        <div class="ui icon header">
+            <i class="warning sign icon"></i>
+            {% trans 'Are you sure' %}?
+        </div>
+        <div class="content">
+            <div class="ui center aligned grid">{% trans 'The action is irreversable' %}!</div>
+        </div>
+        <div class="actions">
+            <div class="ui center aligned grid">
+                <button class="ui blue basic inverted button modal-cancel">{% trans 'Cancel' %}</button>
+                <button class="ui red basic inverted button modal-confirm">{% trans 'Remove' %}</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        jQuery(function () {
+            // File uploading
+            let upload_file_modal = $('#upload_file_modal');
+            let file_input = $('#file_input');
+            upload_file_modal.modal({transition: 'vertical flip', closable: false})
+                .modal('attach events', '#upload_file_modal_activate', 'show');
+
+            upload_file_modal.find('.modal-cancel').click(function () {
+                upload_file_modal.modal('hide')
+            });
+
+            file_input.on('fileselect', function () {
+                $('#filename_display').text($(this)[0].files[0].name);
+            });
+
+            upload_file_modal.find('.modal-confirm').click(function () {
+                let file_value = file_input[0].files,
+                    data = new FormData();
+                if (file_value.length <= 0) return err_notify("{% trans 'No file is chosen' %}");
+                data.append('file', file_value[0]);
+                data.append('user_link', {{ user_link.id }});
+                upload_file_modal.modal('hide');
+                upload_diploma($(this).data('url'), data);
+                return false;
+            });
+
+            // File deleting
+            let remove_warn_modal = $('#remove_warn_modal');
+            remove_warn_modal.modal({transition: 'fade in', autofocus: false, closable: false});
+
+            remove_warn_modal.find('.modal-cancel').click(function () {
+                remove_warn_modal.modal('hide')
+            });
+
+            $('.remove-file-link').click(function () {
+                remove_warn_modal.find('.modal-confirm').data('url', $(this).data('url'));
+                remove_warn_modal.modal('show');
+            });
+
+            remove_warn_modal.find('.modal-confirm').click(function () {
+                $.ajax({
+                    url: $(this).data('url'),
+                    method: 'DELETE',
+                    success: function () {
+                        window.location.replace('')
+                    }
+                })
+            });
+        });
+    </script>
+{% endif %}

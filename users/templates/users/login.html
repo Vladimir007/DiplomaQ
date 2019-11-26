@@ -1,0 +1,25 @@
+{% extends 'users/base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Sign in' %}{% endblock %}
+
+{% block body_block %}
+    <form class="form-signin" role="form" id="login_form" method="post" action="{% url 'users:login' %}{% if request.GET %}?next={{ request.GET.next }}{% endif %}">
+        <div class="ui teal segment">
+            {% csrf_token %}
+            {% for error in form.non_field_errors %}
+                <p><small style="color: #e64d44;">{{ error }}</small></p>
+            {% endfor %}
+            <div class="ui form large">
+                {% for field in form %}
+                    <div class="field">
+                        {{ field }}
+                        <small style="color: #e64d44;">{{ field.errors }}</small>
+                    </div>
+                {% endfor %}
+                <button class="ui fluid large teal button" type="submit" value="Submit">{% trans 'Sign in' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

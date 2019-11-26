@@ -1,0 +1,69 @@
+{% load i18n %}
+
+{% if students|length %}
+    <table class="ui compact selectable blue table">
+        <thead>
+            <tr>
+                <th>{% trans 'Student' %}</th>
+                <th>{% trans 'Number of uploaded files' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+                <tr>
+                    <td><a href="{% url 'core:student' student.student_id %}">{{ student.student.get_full_name }}</a></td>
+                    <td>{{ student.files_num }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <h5>{% trans "You don't have students yet" %}!</h5>
+{% endif %}
+
+<div id="add_student_modal_activate" class="ui small teal button">{% trans 'Add a student' %}</div>
+<div id="add_student_modal" class="ui modal">
+    <div class="header">{% trans 'Students search' %}</div>
+    <div class="content">
+        <div class="ui fluid search selection dropdown">
+            <input type="hidden" name="new_student">
+            <i class="dropdown icon"></i>
+            <div class="default text">{% trans 'Start typing a lastname' %}</div>
+            <div class="menu"></div>
+        </div>
+    </div>
+    <div class="actions">
+        <button class="ui green button modal-confirm" data-url="{% url 'users:api-add-student' %}">{% trans 'Add' %}</button>
+        <button class="ui blue button modal-cancel">{% trans 'Cancel' %}</button>
+    </div>
+</div>
+
+<script type="application/javascript">
+    jQuery(function () {
+        let add_student_modal = $('#add_student_modal'),
+            students_dropdown = add_student_modal.find('.ui.dropdown');
+        add_student_modal.modal({transition: 'fade', autofocus: false, closable: false});
+        $('#add_student_modal_activate').click(function () {
+            // TODO
+            add_student_modal.modal('show');
+        });
+        add_student_modal.find('.modal-cancel').click(function () {
+            // TODO
+            add_student_modal.modal('hide');
+        });
+        add_student_modal.find('.modal-confirm').click(function () {
+            $.post($(this).data('url'), {student: students_dropdown.dropdown('get value')}, function () {
+                success_notify("{% trans 'Student was successfully added' %}!")
+                students_dropdown.dropdown('clear');
+            });
+        });
+        students_dropdown.dropdown({
+            apiSettings: {
+                url: "{% url 'users:api-free-students' %}?query={query}",
+                cache: false
+            },
+            filterRemoteData: true,
+            saveRemoteData: false
+        })
+    });
+</script>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+{% load compress %}
+{% load i18n %}
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="{% static 'DiplomaQ/images/favicon.ico' %}">
+        <title>{% block title %}{% endblock %} | DiplomaQ</title>
+        <script type="text/javascript" src="{% static "DiplomaQ/js/jquery-3.4.1.min.js" %}"></script>
+        <script type="text/javascript" src="{% static 'DiplomaQ/js/notify.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'DiplomaQ/semantic/semantic.min.js' %}"></script>
+
+        <script type="application/javascript">
+            const UNKNWON_ERROR = "{% trans 'Unknown error' %}";
+        </script>
+        {% compress js file base %}
+            <script type="text/javascript" src="{% static 'DiplomaQ/js/base.js' %}"></script>
+        {% endcompress %}
+
+        <link href="{% static 'DiplomaQ/semantic/semantic.min.css' %}" rel="stylesheet">
+
+        {% compress css file base %}
+            <link href="{% static 'DiplomaQ/css/base.css' %}" rel="stylesheet">
+        {% endcompress %}
+
+        {% block head_block %}{% endblock %}
+    </head>
+    <body>
+        <div id="dimmer_of_page" class="ui dimmer">
+            <div class="ui text loader">{% trans 'Please wait' %}</div>
+        </div>
+
+        <div id="page_header" class="ui fixed inverted menu">
+            <div class="item">
+                <a href="{% url 'core:index' %}">
+                    <img height="30" width="105" src="{% static 'DiplomaQ/images/logo.png' %}" alt="Klever">
+                </a>
+            </div>
+            {% if user.is_staff %}
+                <a class="item" href="{% url 'admin:index' %}">{% trans 'Admin Tools' %}</a>
+            {% endif %}
+            <div class="right menu">
+            {% if user.is_authenticated %}
+                <a class="item" href="{% url 'users:edit-profile' %}">{% trans 'Settings' %}</a>
+                <a class="item" href="{% url 'users:logout' %}">{% trans 'Sign Out' %}</a>
+            {% else %}
+                <a class="item" href="{% url 'users:register' %}">{% trans 'Register' %}</a>
+                <a class="item" href="{% url 'users:login' %}">{% trans 'Sign In' %}</a>
+            {% endif %}
+            </div>
+        </div>
+        <br>
+        {% block body_block %}{% endblock %}
+    </body>
+</html>

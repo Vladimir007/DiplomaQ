@@ -1,0 +1,14 @@
+{% extends 'DiplomaQ/base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Home' %}{% endblock %}
+
+{% block body_block %}
+    <h3>{% trans 'Welcome' %}, {{ user.first_name }}!</h3>
+    {% if is_student %}
+        {% include 'core/student_diploma.html' with user_link=user_link files=files %}
+    {% else %}
+        {% include 'core/my_students.html' with students=students %}
+    {% endif %}
+{% endblock %}

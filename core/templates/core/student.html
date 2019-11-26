@@ -1,0 +1,130 @@
+{% extends 'DiplomaQ/base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Student' %}: {{ user_link.student.get_full_name }}{% endblock %}
+
+{% block body_block %}
+    <button id="upload_file_modal_activate" class="ui teal mini button">{% trans 'Upload new file' %}</button>
+    <br><br>
+    {% if object_list|length %}
+        <table class="ui compact selectable fixed teal table">
+            <thead>
+                <tr>
+                    <th class="three wide">{% trans 'File' %}</th>
+                    <th class="three wide">{% trans 'Date' %}</th>
+                    <th class="ten wide">{% trans 'Comment' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for diploma in object_list %}
+                    <tr>
+                        <td><a href="{% url 'core:download' diploma.pk %}">{{ diploma.name }}</a></td>
+                        <td>{{ diploma.date }}</td>
+                        <td>
+                            <span>{% if diploma.comment %}{{ diploma.comment }}{% else %}<i class="ui ban red icon"></i>{% endif %}</span>
+                            <span data-tooltip="{% trans 'Change' %}"><i class="ui blue link pencil alternate icon change-comment-link" data-url="{% url 'core:api-comment' diploma.pk %}"></i></span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h5>{% trans 'There are no files yet' %}</h5>
+    {% endif %}
+
+    <div id="comment_modal" class="ui modal">
+        <div class="header">{% trans 'Comment change' %}</div>
+        <div class="content">
+            <label for="comment_value">{% trans 'Comment' %}</label>
+            <div class="ui form">
+                <textarea id="comment_value" cols="4" style="resize: none;"></textarea>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui blue button modal-cancel">{% trans 'Cancel' %}</div>
+            <div class="ui green button modal-confirm">{% trans 'Save' %}</div>
+        </div>
+    </div>
+
+    <div id="upload_file_modal" class="ui modal">
+        <div class="header">{% trans 'Upload file' %}</div>
+        <div class="content">
+            <div class="ui grid">
+                <div class="four wide column right aligned">
+                    <span class="ui violet button btn-file">{% trans 'Browse' %}<input id="file_input" type="file"></span>
+                </div>
+                <div class="twelve wide column">
+                    <span id="filename_display"></span>
+                </div>
+            </div>
+            <br>
+            <label for="upload_comment_value">{% trans 'Comment' %} ({% trans 'optional' %})</label>
+            <div class="ui form">
+                <textarea id="upload_comment_value" cols="4" style="resize: none;"></textarea>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="ui green button modal-confirm" data-url="{% url 'core:api-upload-file' %}">{% trans 'Upload' %}</button>
+            <button class="ui blue button modal-cancel">{% trans 'Cancel' %}</button>
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        jQuery(function () {
+            let comment_modal = $('#comment_modal');
+            comment_modal.modal({transition: 'fly up', closable: false});
+
+            $('.change-comment-link').click(function () {
+                let url = $(this).data('url');
+                $.get(url, {}, function (resp) {
+                    $('#comment_value').val(resp['comment']);
+                    comment_modal.find('.modal-confirm').data('url', url);
+                    comment_modal.modal('show');
+                });
+            });
+            comment_modal.find('.modal-cancel').click(function () {
+                comment_modal.modal('hide')
+            });
+            comment_modal.find('.modal-confirm').click(function () {
+                $.ajax({
+                    url: $(this).data('url'),
+                    method: 'PUT',
+                    data: {
+                        comment: $('#comment_value').val()
+                    },
+                    success: function () {
+                        window.location.replace('')
+                    }
+                });
+            });
+
+
+            let upload_file_modal = $('#upload_file_modal');
+            let file_input = $('#file_input');
+            upload_file_modal.modal({transition: 'vertical flip', closable: false})
+                .modal('attach events', '#upload_file_modal_activate', 'show');
+
+            upload_file_modal.find('.modal-cancel').click(function () {
+                upload_file_modal.modal('hide')
+            });
+
+            file_input.on('fileselect', function () {
+                $('#filename_display').text($(this)[0].files[0].name);
+            });
+
+            upload_file_modal.find('.modal-confirm').click(function () {
+                let file_value = file_input[0].files,
+                    data = new FormData();
+                if (file_value.length <= 0) return err_notify("{% trans 'No file is chosen' %}");
+                data.append('file', file_value[0]);
+                data.append('user_link', {{ user_link.id }});
+                data.append('comment', $('#upload_comment_value').val());
+
+                upload_file_modal.modal('hide');
+                upload_diploma($(this).data('url'), data);
+                return false;
+            });
+        });
+    </script>
+{% endblock %}
