@@ -44,17 +44,15 @@
             students_dropdown = add_student_modal.find('.ui.dropdown');
         add_student_modal.modal({transition: 'fade', autofocus: false, closable: false});
         $('#add_student_modal_activate').click(function () {
-            // TODO
-            add_student_modal.modal('show');
+            add_student_modal.modal('show')
         });
         add_student_modal.find('.modal-cancel').click(function () {
-            // TODO
-            add_student_modal.modal('hide');
+            add_student_modal.modal('hide')
         });
         add_student_modal.find('.modal-confirm').click(function () {
             $.post($(this).data('url'), {student: students_dropdown.dropdown('get value')}, function () {
-                success_notify("{% trans 'Student was successfully added' %}!")
                 students_dropdown.dropdown('clear');
+                success_notify("{% trans 'Student was successfully added' %}!");
             });
         });
         students_dropdown.dropdown({

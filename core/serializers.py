@@ -1,4 +1,4 @@
-from rest_framework import fields, serializers, exceptions
+from rest_framework import fields, serializers
 
 from core.models import DiplomaFile
 

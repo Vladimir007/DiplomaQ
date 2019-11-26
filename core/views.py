@@ -7,7 +7,6 @@ from django.views.generic.detail import SingleObjectMixin
 from DiplomaQ.vars import USER_ROLES
 from DiplomaQ.utils import StreamingResponseView
 
-from users.models import User
 from core.models import DiplomaFile, CuratorStudent
 from core.utils import DiplomaGenerator
 
